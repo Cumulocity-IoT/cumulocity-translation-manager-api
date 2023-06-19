@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This microservice extends the cumulocity translation manager with an suitable REST API to show and add translations during runtime.
+This microservice extends the [cumulocity translation manager](https://github.com/SoftwareAG/cumulocity-translation-manager) with an suitable REST API to show and add translations during runtime.
 
 ### API:
 
