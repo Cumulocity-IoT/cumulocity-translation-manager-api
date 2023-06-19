@@ -136,10 +136,12 @@ public class TranslationService {
 	private byte[] getOptionsJson() {
 		// GET: {{url}}/apps/public-options/options.json
 
+		
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Authorization", contextService.getContext().toCumulocityCredentials().getAuthenticationString());
 
-		String serverUrl = clientProperties.getBaseURL() + "/apps/public-options/options.json";
+		String hostName = "https://" + getDomainName();
+		String serverUrl = hostName + "/apps/public-options/options.json";
 		RestTemplate restTemplate = new RestTemplate();
 
 		byte[] attachment = restTemplate.execute(serverUrl, HttpMethod.GET, clientHttpRequest -> {
@@ -182,6 +184,26 @@ public class TranslationService {
 		return applicationId;
 	}
 
+	private String getDomainName() {
+		String serverUrl = clientProperties.getBaseURL() + "/tenant/currentTenant";
+		RestTemplate restTemplate = new RestTemplate();
+		
+		String domainName = restTemplate.execute(serverUrl, HttpMethod.GET, clientHttpRequest -> {
+			clientHttpRequest.getHeaders().set("Authorization",
+					contextService.getContext().toCumulocityCredentials().getAuthenticationString());
+		}, clientHttpResponse -> {
+			clientHttpResponse.getRawStatusCode();
+			clientHttpResponse.getStatusText();
+			byte[] readAllBytes = clientHttpResponse.getBody().readAllBytes();
+			JsonNode createJsonNode = createJsonNode(readAllBytes);
+			String domainNameValue = createJsonNode.get("domainName").asText();
+			log.info("Download event attachment response; HTTP StatusCode: {}, Text: {}",
+					clientHttpResponse.getRawStatusCode(), clientHttpResponse.getStatusText());
+			return domainNameValue;
+		});
+		
+		return domainName;
+	}
 	
 	private void uploadApplicationAttachment(Resource resource, final String applicationId) {	
 		//TODO Before sending this data to cumulocity an validation should be done: file size, does the content type fit etc.

@@ -1,5 +1,0 @@
-cumulocity\microservice\translation\manager\config\AppSpecificSecurityConfig.class
-cumulocity\microservice\translation\manager\App.class
-cumulocity\microservice\translation\manager\controller\TranslationController.class
-cumulocity\microservice\translation\manager\service\TranslationService.class
-cumulocity\microservice\translation\manager\model\Translation.class
