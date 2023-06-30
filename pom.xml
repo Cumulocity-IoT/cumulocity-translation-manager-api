@@ -7,7 +7,7 @@
 
 	<groupId>cumulocity.microservice</groupId>
 	<artifactId>cumulocity-microservice-translation-manager-api</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -142,7 +142,7 @@
 				</executions>
 			</plugin>
 
-			<!-- plugin>
+			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<version>2.3.4.RELEASE</version>
@@ -163,8 +163,8 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin-->
-			<!--plugin>
+			</plugin>
+			<plugin>
 				<groupId>org.springdoc</groupId>
 				<artifactId>springdoc-openapi-maven-plugin</artifactId>
 				<version>1.1</version>
@@ -181,8 +181,8 @@
 					<outputFileName>openapi.json</outputFileName>
 					<outputDir>${project.build.directory}</outputDir>
 				</configuration>
-			</plugin-->
-			<!-- plugin>
+			</plugin>
+			<plugin>
 				<groupId>org.openapitools</groupId>
 				<artifactId>openapi-generator-maven-plugin</artifactId>
 				<version>${openapi-generator-maven-plugin-version}</version>
@@ -200,7 +200,7 @@
 						</configuration>
 					</execution>
 				</executions>
-			</plugin-->
+			</plugin>
 		</plugins>
 	</build>
 
