@@ -27,6 +27,7 @@ import com.cumulocity.microservice.context.ContextService;
 import com.cumulocity.microservice.context.credentials.MicroserviceCredentials;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import cumulocity.microservice.translation.manager.model.Translation;
@@ -81,6 +82,13 @@ public class TranslationService {
 	public List<Translation> addOrUpdateTranslations(List<Translation> translations) {
 		JsonNode optionsJsonNode = getOptionsJsonNode();
 		JsonNode i18n = optionsJsonNode.get(I18NEXTRA);
+		
+		if(i18n == null) {
+			i18n = JsonNodeFactory.instance.objectNode();
+			((ObjectNode) optionsJsonNode).set(I18NEXTRA, i18n);
+			
+		}
+		
 		for (Translation translation : translations) {
 			for (String locale : translation.getTranslations().keySet()) {
 				log.info("Locale: {}, Translation Key: {}, Text: {}", locale, translation.getKey(),
