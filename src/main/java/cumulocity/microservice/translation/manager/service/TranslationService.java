@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -40,7 +41,7 @@ public class TranslationService {
 
 	private final CumulocityClientProperties clientProperties;
 
-	private static final String I18NEXTRA = "i18nExtra";
+	private static final Set<String> SUPPORTED_LOCALES = Set.of("de", "en");
 
 	@Autowired
 	public TranslationService(ContextService<MicroserviceCredentials> contextService,
@@ -52,24 +53,26 @@ public class TranslationService {
 
 	public Collection<Translation> findTranslations() {
 		Map<String, Translation> translationMap = new HashMap<>();
-		JsonNode optionsJsonNode = getOptionsJsonNode();
-		JsonNode i18n = optionsJsonNode.get(I18NEXTRA);
-		log.info(i18n.toPrettyString());
-		Iterator<Entry<String, JsonNode>> locales = i18n.fields();
-		while (locales.hasNext()) {
-			Entry<String, JsonNode> locale = locales.next();
-			String isoCodeLocale = locale.getKey();
-			Iterator<Entry<String, JsonNode>> fields = locale.getValue().fields();
+		Map<String, JsonNode> translations = getTranslationsNode();
+		
+		for(String locale : translations.keySet()) {
+			JsonNode localeNode = translations.get(locale).get(locale);
+			if(localeNode == null) {
+				log.warn("No translations found for locale {}", locale);
+				continue;
+			}
+			log.debug(localeNode.toPrettyString());
+			Iterator<Entry<String, JsonNode>> fields = localeNode.fields();
 			while (fields.hasNext()) {
 				Entry<String, JsonNode> translation = fields.next();
-				log.info("Locale: {}, Translation Key: {}, Text: {}", isoCodeLocale, translation.getKey(),
+				log.info("Locale: {}, Translation Key: {}, Text: {}", locale, translation.getKey(),
 						translation.getValue().asText());
 				Translation currentTranslation = translationMap.get(translation.getKey());
 				if (currentTranslation != null) {
-					currentTranslation.addTranslation(isoCodeLocale, translation.getValue().asText());
+					currentTranslation.addTranslation(locale, translation.getValue().asText());
 				} else {
 					Translation newTranslation = new Translation(translation.getKey());
-					newTranslation.addTranslation(isoCodeLocale, translation.getValue().asText());
+					newTranslation.addTranslation(locale, translation.getValue().asText());
 					translationMap.put(translation.getKey(), newTranslation);
 				}
 			}
@@ -78,14 +81,14 @@ public class TranslationService {
 		return translationMap.values();
 	}
 
-	public List<Translation> addOrUpdateTranslations(List<Translation> translations) {
-		JsonNode optionsJsonNode = getOptionsJsonNode();
-		JsonNode i18n = optionsJsonNode.get(I18NEXTRA);
+	public synchronized List<Translation> addOrUpdateTranslations(List<Translation> translations) {
+		Map<String, JsonNode> currentTranslations = getTranslationsNode();
+		
 		for (Translation translation : translations) {
+			//log.info("Processing translation key: {}", translation.getKey());
 			for (String locale : translation.getTranslations().keySet()) {
-				log.info("Locale: {}, Translation Key: {}, Text: {}", locale, translation.getKey(),
-						translation.getTranslations().get(locale));
-				JsonNode localeNode = i18n.get(locale);
+				//log.info("Locale: {}, Translation Key: {}, Text: {}", locale, translation.getKey(), translation.getTranslations().get(locale));
+				JsonNode localeNode = currentTranslations.get(locale).get(locale);
 				if (localeNode == null) {
 					log.warn("Skip Translation, Locale {} not found", locale);
 					continue;
@@ -93,29 +96,35 @@ public class TranslationService {
 				((ObjectNode) localeNode).put(translation.getKey(), translation.getTranslations().get(locale));
 
 			}
-
 		}
-
-		log.info(optionsJsonNode.toPrettyString());
-		log.info("Is Binary? {}", optionsJsonNode.isBinary());
 		
-		String publicOptionsAppId = getPublicOptionsAppId();
-		log.info("Public Options Application ID: {}", publicOptionsAppId);
+		String publicOptionsAppId = getUserDefinedTranslations();
+		log.debug("Public Options Application ID: {}", publicOptionsAppId);
 
-		ByteArrayResource resource;
-		try {
-			resource = new ByteArrayResource(optionsJsonNode.toPrettyString().getBytes());
-			uploadApplicationAttachment(resource, publicOptionsAppId);
-		} catch (Exception e) {
-			log.error("Upload new binary options json failed!", e);
+		Map<String, Resource> resourceMap = new HashMap<>();
+		for (String locale : currentTranslations.keySet()) {
+			ByteArrayResource resource;
+			try {
+				resource = new ByteArrayResource(currentTranslations.get(locale).toPrettyString().getBytes());
+				resourceMap.put(locale + ".json", resource);
+			} catch (Exception e) {
+				log.error("Upload new binary options json failed!", e);
+			}
 		}
+		uploadApplicationAttachment(resourceMap, publicOptionsAppId);
+
 
 		return translations;
 	}
 
-	private JsonNode getOptionsJsonNode() {
-		byte[] optionsJson = getOptionsJson();
-		return createJsonNode(optionsJson);
+	private Map<String, JsonNode> getTranslationsNode() {
+		Map<String, JsonNode> translations = new java.util.HashMap<>();
+		for(String locale : SUPPORTED_LOCALES) {
+			log.info("Process locale: {}", locale);
+			byte[] translation = getTranslationsJson(locale);
+			translations.put(locale, createJsonNode(translation));
+		}
+		return translations;
 	}
 
 	private JsonNode createJsonNode(byte[] jsonByteArray) {
@@ -133,15 +142,12 @@ public class TranslationService {
 		}
 	}
 
-	private byte[] getOptionsJson() {
-		// GET: {{url}}/apps/public-options/options.json
-
-		
+	private byte[] getTranslationsJson(String locale) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Authorization", contextService.getContext().toCumulocityCredentials().getAuthenticationString());
 
 		String hostName = "https://" + getDomainName();
-		String serverUrl = hostName + "/apps/public-options/options.json";
+		String serverUrl = hostName + "/apps/public/user-defined-translations/" + locale + ".json";
 		RestTemplate restTemplate = new RestTemplate();
 
 		byte[] attachment = restTemplate.execute(serverUrl, HttpMethod.GET, clientHttpRequest -> {
@@ -151,33 +157,28 @@ public class TranslationService {
 			clientHttpResponse.getRawStatusCode();
 			clientHttpResponse.getStatusText();
 			byte[] readAllBytes = clientHttpResponse.getBody().readAllBytes();
-			log.info("Download event attachment response; HTTP StatusCode: {}, Text: {}",
-					clientHttpResponse.getRawStatusCode(), clientHttpResponse.getStatusText());
+			log.info("Get translations JSON {} response; HTTP StatusCode: {}, Text: {}",
+					locale, clientHttpResponse.getRawStatusCode(), clientHttpResponse.getStatusText());
 			return readAllBytes;
 		});
 
 		return attachment;
 	}
 
-	private String getPublicOptionsAppId() {
-		// {{url}}/application/applicationsByName/public-options
-		String serverUrl = clientProperties.getBaseURL() + "/application/applicationsByName/public-options";
+	private String getUserDefinedTranslations() {
+		String serverUrl = clientProperties.getBaseURL() + "/application/applicationsByName/User defined translations";
 		RestTemplate restTemplate = new RestTemplate();
 
 		String applicationId = restTemplate.execute(serverUrl, HttpMethod.GET, clientHttpRequest -> {
 			clientHttpRequest.getHeaders().set("Authorization",
 					contextService.getContext().toCumulocityCredentials().getAuthenticationString());
 		}, clientHttpResponse -> {
-			clientHttpResponse.getRawStatusCode();
-			clientHttpResponse.getStatusText();
+			log.info("Get application by name (User defined translations); HTTP StatusCode: {}, Text: {}",
+					clientHttpResponse.getRawStatusCode(), clientHttpResponse.getStatusText());
 			byte[] readAllBytes = clientHttpResponse.getBody().readAllBytes();
 			JsonNode createJsonNode = createJsonNode(readAllBytes);
-			
 			JsonNode app = createJsonNode.get("applications").elements().next();
 			String appId = app.get("id").asText();
-
-			log.info("Download event attachment response; HTTP StatusCode: {}, Text: {}",
-					clientHttpResponse.getRawStatusCode(), clientHttpResponse.getStatusText());
 			return appId;
 		});
 		
@@ -197,15 +198,15 @@ public class TranslationService {
 			byte[] readAllBytes = clientHttpResponse.getBody().readAllBytes();
 			JsonNode createJsonNode = createJsonNode(readAllBytes);
 			String domainNameValue = createJsonNode.get("domainName").asText();
-			log.info("Download event attachment response; HTTP StatusCode: {}, Text: {}",
-					clientHttpResponse.getRawStatusCode(), clientHttpResponse.getStatusText());
+			log.info("Get domain name: {} response; HTTP StatusCode: {}, Text: {}",
+					domainNameValue, clientHttpResponse.getRawStatusCode(), clientHttpResponse.getStatusText());
 			return domainNameValue;
 		});
 		
 		return domainName;
 	}
 	
-	private void uploadApplicationAttachment(Resource resource, final String applicationId) {	
+	private void uploadApplicationAttachment(Map<String, Resource> resources, final String applicationId) {	
 		//TODO Before sending this data to cumulocity an validation should be done: file size, does the content type fit etc.
 		
 		HttpHeaders headers = new HttpHeaders();
@@ -214,18 +215,20 @@ public class TranslationService {
 		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 		
 		MultipartBodyBuilder multipartBodyBuilder = new MultipartBodyBuilder();
-		multipartBodyBuilder.part("options.json", resource);
-		
+		for(String locale : resources.keySet()) {
+			multipartBodyBuilder.part(locale, resources.get(locale));
+		}
+
 		MultiValueMap<String,HttpEntity<?>> body = multipartBodyBuilder.build();
 		HttpEntity<MultiValueMap<String, HttpEntity<?>>> requestEntity = new HttpEntity<>(body, headers);
 
 		String serverUrl = clientProperties.getBaseURL() + "/application/applications/" + applicationId + "/binaries/files";
-		log.info(serverUrl);
+		log.debug(serverUrl);
 		RestTemplate restTemplate = new RestTemplate();
 		ResponseEntity<Object> response = restTemplate.postForEntity(serverUrl, requestEntity, Object.class);
-		log.info("Response: " + response.getStatusCodeValue());
+		log.info("Upload application binaries {} Response: {}", resources.keySet(), response.getStatusCodeValue());
 		if(response.getStatusCodeValue() >= 300) {
-			log.error("Upload application binary failed with http code {}", response.getStatusCode().toString());;
+			log.error("Upload application binaries {} failed with http code {}", resources.keySet(), response.getStatusCode().toString());
 		}
 	}
 }

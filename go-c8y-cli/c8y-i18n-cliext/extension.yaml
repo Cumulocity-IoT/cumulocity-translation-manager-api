@@ -1,0 +1,8 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/reubenmiller/go-c8y-cli/feat/extensions-manager/tools/schema/extension.json
+version: "v1"
+aliases:
+  - name: i18nlist
+    description: Return a list of translations
+    command: |
+      i18n-cliext list
+    shell: false
