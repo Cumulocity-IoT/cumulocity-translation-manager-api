@@ -65,8 +65,6 @@ public class TranslationService {
 			Iterator<Entry<String, JsonNode>> fields = localeNode.fields();
 			while (fields.hasNext()) {
 				Entry<String, JsonNode> translation = fields.next();
-				log.info("Locale: {}, Translation Key: {}, Text: {}", locale, translation.getKey(),
-						translation.getValue().asText());
 				Translation currentTranslation = translationMap.get(translation.getKey());
 				if (currentTranslation != null) {
 					currentTranslation.addTranslation(locale, translation.getValue().asText());
@@ -77,17 +75,18 @@ public class TranslationService {
 				}
 			}
 		}
+		log.info("Found {} translations", translationMap.size());
 
 		return translationMap.values();
 	}
 
 	public synchronized List<Translation> addOrUpdateTranslations(List<Translation> translations) {
+		log.info("Add or update {} translations", translations.size());
+		
 		Map<String, JsonNode> currentTranslations = getTranslationsNode();
 		
 		for (Translation translation : translations) {
-			//log.info("Processing translation key: {}", translation.getKey());
 			for (String locale : translation.getTranslations().keySet()) {
-				//log.info("Locale: {}, Translation Key: {}, Text: {}", locale, translation.getKey(), translation.getTranslations().get(locale));
 				JsonNode localeNode = currentTranslations.get(locale).get(locale);
 				if (localeNode == null) {
 					log.warn("Skip Translation, Locale {} not found", locale);
@@ -114,6 +113,7 @@ public class TranslationService {
 		uploadApplicationAttachment(resourceMap, publicOptionsAppId);
 
 
+		log.info("Add or update {} translations - done", translations.size());
 		return translations;
 	}
 
