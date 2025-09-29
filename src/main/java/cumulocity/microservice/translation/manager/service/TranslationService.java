@@ -118,10 +118,12 @@ public class TranslationService {
 	}
 
 	private Map<String, JsonNode> getTranslationsNode() {
+		String hostName = "https://" + getDomainName();
+
 		Map<String, JsonNode> translations = new java.util.HashMap<>();
 		for(String locale : SUPPORTED_LOCALES) {
 			log.info("Process locale: {}", locale);
-			byte[] translation = getTranslationsJson(locale);
+			byte[] translation = getTranslationsJson(locale, hostName);
 			translations.put(locale, createJsonNode(translation));
 		}
 		return translations;
@@ -142,11 +144,10 @@ public class TranslationService {
 		}
 	}
 
-	private byte[] getTranslationsJson(String locale) {
+	private byte[] getTranslationsJson(String locale, String hostName) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Authorization", contextService.getContext().toCumulocityCredentials().getAuthenticationString());
 
-		String hostName = "https://" + getDomainName();
 		String serverUrl = hostName + "/apps/public/user-defined-translations/" + locale + ".json";
 		RestTemplate restTemplate = new RestTemplate();
 
@@ -157,7 +158,7 @@ public class TranslationService {
 			clientHttpResponse.getRawStatusCode();
 			clientHttpResponse.getStatusText();
 			byte[] readAllBytes = clientHttpResponse.getBody().readAllBytes();
-			log.info("Get translations JSON {} response; HTTP StatusCode: {}, Text: {}",
+			log.info("Get translations JSON locale: {}, HTTP StatusCode: {}, Text: {}",
 					locale, clientHttpResponse.getRawStatusCode(), clientHttpResponse.getStatusText());
 			return readAllBytes;
 		});
