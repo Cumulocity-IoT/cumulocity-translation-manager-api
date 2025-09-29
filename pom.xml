@@ -218,4 +218,11 @@
 		</pluginRepository>
 	</pluginRepositories>
 
+	<scm>
+		<connection>scm:git:https://github.com/Cumulocity-IoT/cumulocity-translation-manager-api.git</connection>
+		<developerConnection>scm:git:https://github.com/Cumulocity-IoT/cumulocity-translation-manager-api.git</developerConnection>
+		<url>https://github.com/Cumulocity-IoT/cumulocity-translation-manager-api.git</url>
+		<tag>HEAD</tag>
+	</scm>
+
 </project>
