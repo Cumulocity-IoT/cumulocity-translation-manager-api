@@ -7,7 +7,8 @@ All URIs are relative to *http://localhost:8080*
 
 | Class | Method | HTTP request | Description |
 |------------ | ------------- | ------------- | -------------|
-| *TranslationControllerApi* | [**addTranslations**](Apis/TranslationControllerApi.md#addtranslations) | **POST** /api/translations | CREATE or UPDATE translations |
+| *TranslationControllerApi* | [**addSingleTranslation**](Apis/TranslationControllerApi.md#addsingletranslation) | **POST** /api/translations/single | CREATE or UPDATE translation |
+*TranslationControllerApi* | [**addTranslations**](Apis/TranslationControllerApi.md#addtranslations) | **POST** /api/translations | CREATE or UPDATE translations |
 *TranslationControllerApi* | [**getAllTranslation**](Apis/TranslationControllerApi.md#getalltranslation) | **GET** /api/translations | GET all translations |
 
 

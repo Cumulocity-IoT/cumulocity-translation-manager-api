@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/reubenmiller/go-c8y-cli/v2/tools/schema/extensionCommands.json
+---
+group:
+  name: translation
+  description: Manage translations
+
+commands:
+  - name: list
+    description: List available translations
+    method: GET
+    path: service/translation-manager-api/api/translations
+  - name: create
+    description: Create or update translations
+    method: POST
+    path: service/translation-manager-api/api/translations/single
+    body:
+      - name: key
+        type: string
+        description: The key for the translation entry
+      - name: en
+        type: string
+        property: translations.en
+        description: English translation
+      - name: de
+        type: string
+        property: translations.de
+        description: German translation
