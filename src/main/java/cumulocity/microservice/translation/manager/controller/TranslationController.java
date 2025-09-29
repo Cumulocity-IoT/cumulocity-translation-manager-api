@@ -59,4 +59,13 @@ public class TranslationController {
 		List<Translation> response = translationService.addOrUpdateTranslations(translations);
 		return new ResponseEntity<List<Translation>>(response, HttpStatus.OK);
 	}
+
+	@Operation(summary = "CREATE or UPDATE translation", description = "Creates or updates a single translation.", tags = {})
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Translation.class))) })
+	@PostMapping(path = "/single", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Translation> addSingleTranslation(@Valid @RequestBody Translation translation) {
+		List<Translation> response = translationService.addOrUpdateTranslations(List.of(translation));
+		return new ResponseEntity<Translation>(response.get(0), HttpStatus.OK);
+	}
 }

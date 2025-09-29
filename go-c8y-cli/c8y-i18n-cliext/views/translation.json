@@ -1,0 +1,17 @@
+{
+    "$schema": "https://raw.githubusercontent.com/reubenmiller/go-c8y-cli/feat/extensions-manager/tools/schema/views.json",
+    "version": "v1",
+    "definitions": [
+        {
+            "name": "translation",
+            "priority": 350,
+            "requestPath": "service/translation-manager-api/api/translations",
+            "requestMethod": "GET",
+            "columns": [
+                "key",
+                "translations.de",
+                "translations.en"
+            ]
+        }
+    ]
+}

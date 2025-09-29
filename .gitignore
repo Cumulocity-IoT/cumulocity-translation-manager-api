@@ -54,26 +54,6 @@ buildNumber.properties
 
 ##############################
 
-## Gradle
-
-##############################
-
-bin/
-
-build/
-
-.gradle
-
-.gradletasknamecache
-
-gradle-app.setting
-
-!gradle-wrapper.jar
-
-
-
-##############################
-
 ## IntelliJ
 
 ##############################
@@ -125,27 +105,6 @@ local.properties
 .factorypath
 
 
-##############################
-
-## NetBeans
-
-##############################
-
-nbproject/private/
-
-build/
-
-nbbuild/
-
-dist/
-
-nbdist/
-
-nbactions.xml
-
-nb-configuration.xml
-
-
 
 ##############################
 
@@ -154,3 +113,11 @@ nb-configuration.xml
 ##############################
 
 .DS_Store
+
+##############################
+
+## VS Code
+
+##############################
+
+.vscode/

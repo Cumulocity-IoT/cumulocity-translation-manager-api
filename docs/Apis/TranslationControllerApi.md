@@ -4,9 +4,37 @@ All URIs are relative to *http://localhost:8080*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
+| [**addSingleTranslation**](TranslationControllerApi.md#addSingleTranslation) | **POST** /api/translations/single | CREATE or UPDATE translation |
 | [**addTranslations**](TranslationControllerApi.md#addTranslations) | **POST** /api/translations | CREATE or UPDATE translations |
 | [**getAllTranslation**](TranslationControllerApi.md#getAllTranslation) | **GET** /api/translations | GET all translations |
 
+
+<a name="addSingleTranslation"></a>
+# **addSingleTranslation**
+> Translation addSingleTranslation(Translation)
+
+CREATE or UPDATE translation
+
+    Creates or updates a single translation.
+
+### Parameters
+
+|Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **Translation** | [**Translation**](../Models/Translation.md)|  | |
+
+### Return type
+
+[**Translation**](../Models/Translation.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
 
 <a name="addTranslations"></a>
 # **addTranslations**
