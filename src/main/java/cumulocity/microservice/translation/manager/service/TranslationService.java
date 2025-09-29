@@ -41,7 +41,7 @@ public class TranslationService {
 
 	private final CumulocityClientProperties clientProperties;
 
-	private static final Set<String> SUPPORTED_LOCALES = Set.of("de", "en");
+	private static final Set<String> SUPPORTED_LOCALES = Set.of("de", "en", "fr", "es");
 
 	@Autowired
 	public TranslationService(ContextService<MicroserviceCredentials> contextService,
