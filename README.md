@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This microservice extends the [cumulocity translation manager](https://github.com/SoftwareAG/cumulocity-translation-manager) with an suitable REST API to show and add translations during runtime.
+This microservice extends the [cumulocity localization (User defined translations)](https://cumulocity.com/docs/standard-tenant/changing-settings/#localization) with an suitable REST API to show and add translations during runtime. The big difference to the built-in localization (user defined translations) is that the translations can be added and changed without uploading the complete language file. Only send what you want to add or change. This means on the other hand that `key` should have a unique name (use prefix) to avoid conflicts, otherwise other translations could be overwritten. Removing translations is not supported!
 
 ### API:
 
@@ -69,32 +69,26 @@ Install archetype localy in your local maven repository
 ```console
 mvn install
 ```
-## Useful links 
+
+# Useful links 
 
 📘 Explore the Knowledge Base   
-Dive into a wealth of Cumulocity IoT tutorials and articles in our [Tech Community Knowledge Base](https://tech.forums.softwareag.com/tags/c/knowledge-base/6/cumulocity-iot).  
+Dive into a wealth of Cumulocity IoT tutorials and articles in our [Tech Community](https://community.cumulocity.com/).  
 
 💡 Get Expert Answers    
-Stuck or just curious? Ask the Cumulocity IoT experts directly on our [Forum](https://tech.forums.softwareag.com/tags/c/forum/1/Cumulocity-IoT).   
+Stuck or just curious? Ask the Cumulocity IoT experts directly on our [Forum](https://community.cumulocity.com/c/forum/5).   
 
 🚀 Try Cumulocity IoT    
-See Cumulocity IoT in action with a [Free Trial](https://techcommunity.softwareag.com/en_en/downloads.html).   
+See Cumulocity IoT in action with a [Free Trial](https://www.cumulocity.com/start-your-journey/free-trial).   
 
 ✍️ Share Your Feedback    
-Your input drives our innovation. If you find a bug, please create an issue in the repository. If you’d like to share your ideas or feedback, please post them [here](https://tech.forums.softwareag.com/c/feedback/2). 
+Your input drives our innovation. If you find a bug, please create an issue in the repository. If you'd like to share your ideas or feedback, please post them [here](https://community.cumulocity.com/c/feedback-ideas/14). 
 
-More to discover
-* [The power of micro frontends – How to dynamically extend Cumulocity IoT Frontends](https://tech.forums.softwareag.com/t/the-power-of-micro-frontends-how-to-dynamically-extend-cumulocity-iot-frontends/266665)  
-* [How to install a Microfrontend Plugin on a tenant and use it in an app?](https://tech.forums.softwareag.com/t/how-to-install-a-microfrontend-plugin-on-a-tenant-and-use-it-in-an-app/268981)  
-* [Cumulocity IoT Web Development Tutorial - Part 1: Start your journey](https://tech.forums.softwareag.com/t/cumulocity-iot-web-development-tutorial-part-1-start-your-journey/259613) 
+   
+# Authors 
 
-## Authors 
+[Alexander Pester](mailto:alexander.pester@cumulocity.com)
 
-[Alexander Pester](mailto:alexander.pester@softwareag.com)
+# Disclaimer
 
-## Disclaimer
-
-These tools are provided as-is and without warranty or support. They do not constitute part of the Software AG product suite. Users are free to use, fork and modify them, subject to the license agreement. While Software AG welcomes contributions, we cannot guarantee to include every contribution in the master project.
-
-## Contact
-Contact us at [TECHcommunity](mailto:technologycommunity@softwareag.com?subject=Github/SoftwareAG) if you have any questions.
+These tools are provided as-is and without warranty or support. They do not constitute part of the Cumulocity product suite. Users are free to use, fork and modify them, subject to the license agreement. While Cumulocity welcomes contributions, we cannot guarantee to include every contribution in the master project.
